@@ -10,7 +10,7 @@ sed -i 's/192.168.1.1/192.168.10.1/g' package/base-files/files/bin/config_genera
 sed -i "s/hostname='.*'/hostname='OWRT'/g" package/base-files/files/bin/config_generate
 
 # ==========================================
-# 2. 清除不需要的自带依赖 (防止后台幽灵编译)
+# 2. 清除不需要的自带依赖 (防止冲突)
 # ==========================================
 rm -rf feeds/luci/applications/luci-app-argon-config
 rm -rf feeds/luci/applications/luci-app-upnp
@@ -19,29 +19,36 @@ rm -rf feeds/packages/net/miniupnpd
 rm -rf feeds/packages/lang/golang
 
 # ==========================================
-# 3. 核心 Git 拉取函数
+# 3. 修复 128 报错：精准拉取依赖 (不再报错)
 # ==========================================
-function git_sparse_clone() {
-  branch="$1" repourl="$2" && shift 2
-  git clone --depth=1 -b $branch --single-branch --filter=blob:none --sparse $repourl
-  repodir=$(echo $repourl | awk -F '/' '{print $(NF)}')
-  cd $repodir && git sparse-checkout set $@
-  mv -f $@ ../package
-  cd .. && rm -rf $repodir
-}
+# 拉取 Golang 依赖 (HomeProxy 需要)
+git clone --depth=1 --single-branch --filter=blob:none --sparse https://github.com/laipeng668/packages temp_golang
+cd temp_golang
+git sparse-checkout set lang/golang
+cd ..
+mv -f temp_golang/lang/golang feeds/packages/lang/
+rm -rf temp_golang
+
+# 拉取 UPnP 依赖
+git clone --depth=1 --single-branch --filter=blob:none --sparse https://github.com/immortalwrt/packages temp_pkg
+cd temp_pkg
+git sparse-checkout set net/miniupnpd
+cd ..
+mv -f temp_pkg/net/miniupnpd feeds/packages/net/
+rm -rf temp_pkg
+
+# 拉取 LuCI 插件 (UPnP & WOL)
+git clone --depth=1 --single-branch --filter=blob:none --sparse https://github.com/immortalwrt/luci temp_luci
+cd temp_luci
+git sparse-checkout set applications/luci-app-upnp applications/luci-app-wol
+cd ..
+mv -f temp_luci/applications/luci-app-upnp feeds/luci/applications/
+mv -f temp_luci/applications/luci-app-wol feeds/luci/applications/
+rm -rf temp_luci
 
 # ==========================================
-# 4. 仅拉取最基础且必需的网络库 (剔除所有第三方全家桶)
+# 4. 更新 Argon 主题
 # ==========================================
-# 更新 Golang 1.22+ (HomeProxy 及 sing-box 强依赖环境)
-git clone https://github.com/laipeng668/packages_lang_golang feeds/packages/lang/golang
-
-# 更新基础 UPnP 和 WOL
-git_sparse_clone master https://github.com/immortalwrt/packages net/miniupnpd
-git_sparse_clone master https://github.com/immortalwrt/luci applications/luci-app-upnp
-git_sparse_clone master https://github.com/immortalwrt/luci applications/luci-app-wol
-
-# 更新 Argon 主题
 git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon package/luci-theme-argon
 git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
 
