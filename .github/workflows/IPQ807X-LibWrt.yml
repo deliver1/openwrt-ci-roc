@@ -20,9 +20,11 @@ jobs:
       repo_url: https://github.com/laipeng668/openwrt-6.x.git
       repo_branch: 25.12-nss
       config_file: configs/IPQ807X.config
-      firmware_tag: IPQ807X
+      # 【核心修改】加入动态流水号，每次运行生成独立版本，彻底解决 503 报错
+      firmware_tag: IPQ807X-v${{ github.run_number }}
       kernel_file: kernel-6.12
       artifact_prefix: IPQ807X
       manifest_file: libwrt-qualcommax-ipq807x.manifest
+      # 【顺手优化】把原作者错误的介绍文字，改成了你专属的定制说明
       release_summary: >-
-        这是开启全功能NSS的6.12内核固件，默认主题为Aurora；该固件在ImmortalWrt的基础上，添加了额外的软件包cpufreq、ddns、upnp、wol、samba4、vlmcsd、autoreboot、uhttpd、frps、frpc、diskman、hd-idle、acme、wireguard、watchcat、3cat、passwall，并添加了若干工具，具体详见IPQ807X.config和General.config。
+        这是专为 Redmi AX6 (原厂分区) 定制的 6.12 内核纯有线主路由固件，已彻底移除 Wi-Fi 驱动、NAS 及多余全家桶插件。保留 NSS 满血硬件加速与 HomeProxy。IP已设定为 192.168.10.1。
