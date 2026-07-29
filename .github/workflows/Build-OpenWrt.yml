@@ -104,7 +104,7 @@ jobs:
           genisoimage msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils \
           rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
         sudo -E systemctl daemon-reload
-        sudo timedatectl set-timezone "$TZ"
+        sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
     - name: Checkout(检出代码)
       uses: actions/checkout@v4
