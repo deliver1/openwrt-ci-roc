@@ -123,6 +123,13 @@ jobs:
         git clone --depth 1 -b "$REPO_BRANCH" --single-branch "$REPO_URL" /mnt/openwrt
         cd /mnt/openwrt
         echo "OPENWRT_PATH=$PWD" >> "$GITHUB_ENV"
+        
+        # ==============================================================
+        # 植入第三方 M1 环境监控服务端源码
+        # 注：如果你看中了一个具体的 M1 服务端项目，只需把下面这行的 https 链接替换掉即可
+        # ==============================================================
+        git clone https://github.com/a2os/phicomm-m1-server.git package/m1-server
+        
         VERSION_INFO="$(git show -s --date=short --format="作者: %an<br/>时间: %cd<br/>内容: %s<br/>hash: %H")"
         {
           echo "VERSION_INFO<<EOF"
