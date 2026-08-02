@@ -123,27 +123,6 @@ jobs:
         git clone --depth 1 -b "$REPO_BRANCH" --single-branch "$REPO_URL" /mnt/openwrt
         cd /mnt/openwrt
         echo "OPENWRT_PATH=$PWD" >> "$GITHUB_ENV"
-        
-        # === M1 服务端“防爆死”全网探测脚本 ===
-        echo "开始尝试下载 M1 服务端源码..."
-        M1_URLS=(
-          "https://github.com/10243/phicomm_m1_server.git"
-          "https://github.com/fengyingw/phicomm-m1-server.git"
-          "https://github.com/BioniCosmos/phicomm-m1-server.git"
-          "https://github.com/xiaoqiang123/phicomm-m1.git"
-          "https://github.com/yaming116/phicomm-m1-server.git"
-        )
-        for url in "${M1_URLS[@]}"; do
-          echo "正在探测链接: $url"
-          if git clone --depth 1 "$url" package/phicomm-m1-server; then
-            echo "✅ 成功拉取 M1 源码，火速撤离！"
-            break
-          else
-            echo "❌ 链接已失效，尝试下一个..."
-          fi
-        done || true
-        # =================================
-
         VERSION_INFO="$(git show -s --date=short --format="作者: %an<br/>时间: %cd<br/>内容: %s<br/>hash: %H")"
         {
           echo "VERSION_INFO<<EOF"
